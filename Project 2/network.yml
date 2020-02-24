@@ -238,8 +238,8 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       Subnets:
-      - !Sub "${EnvironmentName}-PUB1-SN"
-      - !Sub "${EnvironmentName}-PUB2-SN"
+      - !Ref PublicSubnet1
+      - !Ref PublicSubnet2
       SecurityGroups:
       - Ref: LBSecurityGroup
 
@@ -302,7 +302,7 @@ Resources:
   WebAppGroup:
     Type:  AWS::AutoScaling::AutoScalingGroup
     Properties:
-      VPCZoneIdentifier: [!Sub "${EnvironmentName} Private Subnet  AZ2", "${EnvironmentName} Private Subnet  AZ1"]
+      VPCZoneIdentifier: [!Ref PrivateSubnet1, !Ref PrivateSubnet2]
       LaunchConfigurationName: !Ref WebAppLaunchConfig
       MinSize: !Ref ReplicaMax
       MaxSize: !Ref ReplicaMax
