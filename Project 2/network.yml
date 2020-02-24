@@ -41,7 +41,8 @@ Resources:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: !Ref VpcCIDR
-      EnableDNSHostnames: true
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
       Tags: 
       - Key: Name 
         Value: !Ref EnvironmentName
@@ -58,9 +59,6 @@ Resources:
     Properties:
       InternetGatewayId: !Ref InternetGateway
       VpcId: !Ref VPC
-      Tags:
-        - Key: Name
-          Value: !Ref EnvironmentName
 
   PublicSubnet1:
     Type: AWS::EC2::Subnet
@@ -206,15 +204,15 @@ Resources:
       GroupDescription: Give HTTP acess to our Load Balancer
       VpcId: !Ref VPC
       SecurityGroupIngress:
-        -IpProtocol: tcp
-        FromPort: 80
-        ToPort: 80
-        CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
       SecurityGroupEgress:
-        -IpProtocol: tcp
-        FromPort: 80
-        ToPort: 80
-        CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
 
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -222,19 +220,19 @@ Resources:
       GroupDescription: Give HTTP acess to our webserver and local for SSH
       VpcId: !Ref VPC
       SecurityGroupIngress:
-        -IpProtocol: tcp
-        FromPort: 8080
-        ToPort: 8080
-        CidrIp: 0.0.0.0/0
-        -IpProtocol: tcp
-        FromPort: 22
-        ToPort: 22
-        CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
       SecurityGroupEgress:
-        -IpProtocol: tcp
-        FromPort: 0
-        ToPort: 65535
-        CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
 
   WebAppLB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -249,13 +247,10 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       DefaultActions:
-        -Type: forward
-      TargetGroupArn:
-        Ref: WebAppTargetGroup
-      LoadBalancerArn:
-        Ref: WebAppLB
-        Port: '80'
-        Protocol: HTTP
+        - Type: forward
+      LoadBalancerArn: !Ref WebAppLB
+      Port: '80'
+      Protocol: HTTP
 
   LBListenerRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
@@ -307,7 +302,7 @@ Resources:
   WebAppGroup:
     Type:  AWS::AutoScaling::AutoScalingGroup
     Properties:
-      VPCZoneIdentifier: !Sub ${EnvironmentName}-PRIV-NETS
-      LaunchConfigurationName: WebAppLaunchConfig
+      VPCZoneIdentifier: [!Sub "${EnvironmentName} Private Subnet  AZ2", "${EnvironmentName} Private Subnet  AZ1"]
+      LaunchConfigurationName: !Ref WebAppLaunchConfig
       MinSize: !Ref ReplicaMax
-      MaxSiz: !Ref ReplicaMax
+      MaxSize: !Ref ReplicaMax
