@@ -245,27 +245,20 @@ Resources:
 
   Listener:
     Type: AWS::ElasticLoadBalancingV2::Listener
+    DependsOn:
+      - WebAppLB
+      - WebAppTargetGroup
     Properties:
       DefaultActions:
         - Type: forward
+          TargetGroupArn: !Ref WebAppTargetGroup
       LoadBalancerArn: !Ref WebAppLB
       Port: '80'
       Protocol: HTTP
 
-  LBListenerRule:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    Properties:
-      Actions:
-      - Type: forward
-      TargetGroupArn: !Ref 'WebAppTargetGroup'
-      Conditions:
-        -Field: path-pattern
-        Values: [/]
-      ListenerArn: !Ref 'Listener'
-      Priority: 1
-
   WebAppTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    DependsOn: WebAppLB
     Properties:
       HealthCheckIntervalSeconds: 35
       HealthCheckPath: /
